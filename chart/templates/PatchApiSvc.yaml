@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: patch-api-svc
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . }}
   annotations:
     helm.sh/hook: post-install
     helm.sh/hook-weight: "5"
@@ -21,7 +21,7 @@ spec:
             - service
             - kube-apiserver
             - -n
-            - "{{ .Values.metadata.name }}-{{ .Values.metadata.name }}"
+            - '{{ include "clusterNamespace" . }}'
             - -p
             - '{"metadata": {"annotations": {"metallb.universe.tf/address-pool": "{{ .Values.metadata.name }}-api-address-pool"}}}'
       restartPolicy: OnFailure

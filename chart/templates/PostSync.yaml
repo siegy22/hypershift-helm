@@ -2,7 +2,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cluster-setup
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . | quote }}
 data:
 {{- if eq .Values.hypershift.disableAllDefaultSources true }}
   disable_default_catalog_sources.sh: |
@@ -126,7 +126,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: worker-setup
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . }}
   annotations:
     helm.sh/hook: post-install
     helm.sh/hook-weight: "10"

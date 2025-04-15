@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: "{{ .Values.metadata.name }}-sshkey"
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . | quote }}
 data:
   id_rsa.pub: {{ .Values.sshKey | b64enc | quote }}
 type: Opaque
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: trusted-ca
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . | quote }}
 data:
   ca-bundle.crt: |
     {{- .Values.additionalTrustBundle |  nindent 4 }}
@@ -22,7 +22,7 @@ apiVersion: hypershift.openshift.io/v1beta1
 kind: HostedCluster
 metadata:
   name: {{ .Values.metadata.name | quote }}
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . | quote }}
   annotations:
     helm.sh/hook-weight: "20"
 {{- if hasKey .Values.hypershift "controlPlaneOperatorImage" }}
@@ -34,7 +34,7 @@ spec:
   platform:
     type: "Agent"
     agent:
-      agentNamespace: {{ .Values.metadata.name | quote }}
+      agentNamespace: {{ include "clusterNamespace" . }}
   dns:
     baseDomain: {{ .Values.baseDomain | quote }}
   networking:
@@ -46,7 +46,7 @@ spec:
   {{- end }}
 {{- end }}
   pullSecret:
-    name: assisted-deployment-pull-secret
+    name: {{ .Values.metadata.name }}-pull-secret
   sshKey:
     name: "{{ .Values.metadata.name }}-sshkey"
 {{- if hasKey .Values "fips" }}

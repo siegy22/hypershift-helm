@@ -1,4 +1,5 @@
-{{- $namespace := .Values.metadata.name }}
+{{- $clusterName := .Values.metadata.name }}
+{{- $namespace := include "clusterNamespace" . }}
 {{- $osversion := .Values.hypershift.osImageVersion }}
 {{- $sshkey := .Values.sshKey }}
 {{- $ntpsources := .Values.hypershift.additionalNTPSources | default list }}
@@ -23,7 +24,7 @@ spec:
   osImageVersion: "{{ $poolconfig.osImageVersion | default $osversion }}"
   sshAuthorizedKey: "{{ $sshkey | trim }}"
   pullSecretRef:
-    name: assisted-deployment-pull-secret
+    name: {{ $clusterName }}-pull-secret
   nmStateConfigLabelSelector:
     matchLabels:
       nmstate-cluster: {{ .name | quote }}

@@ -1,4 +1,4 @@
-{{- $namespace := .Values.metadata.name }}
+{{- $namespace := include "clusterNamespace" . }}
 {{- range .Values.platform.baremetal.hosts }}
 apiVersion: agent-install.openshift.io/v1beta1
 kind: NMStateConfig

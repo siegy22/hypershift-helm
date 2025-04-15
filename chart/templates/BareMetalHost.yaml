@@ -1,4 +1,4 @@
-{{- $namespace := .Values.metadata.name }}
+{{- $namespace := include "clusterNamespace" . }}
 {{- range .Values.platform.baremetal.hosts }}
 apiVersion: v1
 kind: Secret

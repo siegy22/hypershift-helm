@@ -3,14 +3,20 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: "test-cluster"
+  name: "clusters"
+---
+# Source: deploy-cluster/templates/Namespace.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: "clusters-test-cluster"
 ---
 # Source: deploy-cluster/templates/RBAC.yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: hypershift-installer
-  namespace: "test-cluster"
+  namespace: "clusters"
 ---
 # Source: deploy-cluster/templates/BareMetalHost.yaml
 apiVersion: v1
@@ -20,7 +26,7 @@ data:
   username: "YWRtaW4="
 metadata:
   name: "openshift-worker-0-bmc-secret"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
 type: Opaque
 ---
 # Source: deploy-cluster/templates/BareMetalHost.yaml
@@ -31,7 +37,7 @@ data:
   username: "YWRtaW4="
 metadata:
   name: "openshift-worker-1-bmc-secret"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
 type: Opaque
 ---
 # Source: deploy-cluster/templates/HostedCluster.yaml
@@ -39,7 +45,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: "test-cluster-sshkey"
-  namespace: "test-cluster"
+  namespace: "clusters"
 data:
   id_rsa.pub: "c3NoLXJzYSAuLi4K"
 type: Opaque
@@ -50,8 +56,8 @@ kind: Secret
 data:
   .dockerconfigjson: "eyJhdXRocyI6e319"
 metadata:
-  name: assisted-deployment-pull-secret
-  namespace: "test-cluster"
+  name: test-cluster-pull-secret
+  namespace: "clusters-test-cluster"
 type: kubernetes.io/dockerconfigjson
 ---
 # Source: deploy-cluster/templates/PostSync.yaml
@@ -59,7 +65,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: cluster-setup
-  namespace: "test-cluster"
+  namespace: "clusters"
 data:
   wait_node.sh: |
     set -e
@@ -168,7 +174,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: capi-provider-role
-  namespace: "test-cluster"
+  namespace: clusters-test-cluster
 rules:
   - apiGroups:
       - agent-install.openshift.io
@@ -182,7 +188,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: hypershift-installer-role
-  namespace: "test-cluster-test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "30"
 rules:
@@ -198,13 +204,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: hypershift-installer-binding
-  namespace: "test-cluster-test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "30"
 subjects:
   - kind: ServiceAccount
     name: hypershift-installer
-    namespace: "test-cluster"
+    namespace: "clusters"
 roleRef:
   kind: Role
   name: hypershift-installer-role
@@ -215,7 +221,7 @@ apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
 metadata:
   name: "openshift-worker-0"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     bmac.agent-install.openshift.io/role: "worker"
     bmac.agent-install.openshift.io/hostname: "openshift-worker-0"
@@ -238,7 +244,7 @@ apiVersion: metal3.io/v1alpha1
 kind: BareMetalHost
 metadata:
   name: "openshift-worker-1"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     bmac.agent-install.openshift.io/role: "worker"
     bmac.agent-install.openshift.io/hostname: "openshift-worker-1"
@@ -261,7 +267,7 @@ apiVersion: hypershift.openshift.io/v1beta1
 kind: HostedCluster
 metadata:
   name: "test-cluster"
-  namespace: "test-cluster"
+  namespace: "clusters"
   annotations:
     helm.sh/hook-weight: "20"
 spec:
@@ -270,7 +276,7 @@ spec:
   platform:
     type: "Agent"
     agent:
-      agentNamespace: "test-cluster"
+      agentNamespace: clusters-test-cluster
   dns:
     baseDomain: "test.com"
   networking:
@@ -322,14 +328,14 @@ apiVersion: agent-install.openshift.io/v1beta1
 kind: InfraEnv
 metadata:
   name: "worker"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "10"
 spec:
   osImageVersion: "4.12"
   sshAuthorizedKey: "ssh-rsa ..."
   pullSecretRef:
-    name: assisted-deployment-pull-secret
+    name: test-cluster-pull-secret
   nmStateConfigLabelSelector:
     matchLabels:
       nmstate-cluster: "worker"
@@ -349,7 +355,7 @@ apiVersion: agent-install.openshift.io/v1beta1
 kind: NMStateConfig
 metadata:
   name: "openshift-worker-0"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "5"
   labels:
@@ -375,7 +381,7 @@ apiVersion: agent-install.openshift.io/v1beta1
 kind: NMStateConfig
 metadata:
   name: "openshift-worker-1"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "5"
   labels:
@@ -401,11 +407,11 @@ apiVersion: hypershift.openshift.io/v1beta1
 kind: NodePool
 metadata:
   name: "worker"
-  namespace: "test-cluster"
+  namespace: "clusters-test-cluster"
   annotations:
     helm.sh/hook-weight: "25"
 spec:
-  clusterName: "test-cluster"
+  clusterName: "clusters-test-cluster"
   release:
     image: "quay.io/openshift-release-dev/ocp-release:4.12.0-x86_64"
   replicas: 2
@@ -424,7 +430,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: patch-api-svc
-  namespace: "test-cluster"
+  namespace: clusters
   annotations:
     helm.sh/hook: post-install
     helm.sh/hook-weight: "5"
@@ -443,7 +449,7 @@ spec:
             - service
             - kube-apiserver
             - -n
-            - "test-cluster-test-cluster"
+            - 'clusters-test-cluster'
             - -p
             - '{"metadata": {"annotations": {"metallb.universe.tf/address-pool": "test-cluster-api-address-pool"}}}'
       restartPolicy: OnFailure
@@ -453,7 +459,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: worker-setup
-  namespace: "test-cluster"
+  namespace: clusters
   annotations:
     helm.sh/hook: post-install
     helm.sh/hook-weight: "10"

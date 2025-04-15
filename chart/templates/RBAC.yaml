@@ -2,7 +2,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
   name: hypershift-installer-role
-  namespace: "{{ .Values.metadata.name }}-{{ .Values.metadata.name }}"
+  namespace: {{ include "clusterNamespace" . | quote }}
   annotations:
     helm.sh/hook-weight: "30"
 rules:
@@ -17,13 +17,13 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding
 metadata:
   name: hypershift-installer-binding
-  namespace: "{{ .Values.metadata.name }}-{{ .Values.metadata.name }}"
+  namespace: {{ include "clusterNamespace" . | quote }}
   annotations:
     helm.sh/hook-weight: "30"
 subjects:
   - kind: ServiceAccount
     name: hypershift-installer
-    namespace: {{ .Values.metadata.name | quote }}
+    namespace: {{ include "hostedClusterNamespace" . | quote }}
 roleRef:
   kind: Role
   name: hypershift-installer-role
@@ -33,4 +33,4 @@ apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: hypershift-installer
-  namespace: {{ .Values.metadata.name | quote }}
+  namespace: {{ include "hostedClusterNamespace" . | quote }}

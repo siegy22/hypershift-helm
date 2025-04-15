@@ -1,4 +1,5 @@
-{{- $namespace := .Values.metadata.name }}
+{{- $clusterName := .Values.metadata.name }}
+{{- $namespace := include "hostedClusterNamespace" . }}
 {{- $imageset := .Values.hypershift.clusterImageSet }}
 {{- $nodepoolconfigs := .Values.hypershift.nodePoolConfigs }}
 {{- range .Values.compute }}
@@ -12,12 +13,12 @@
 apiVersion: hypershift.openshift.io/v1beta1
 kind: NodePool
 metadata:
-  name: {{ .name | quote }}
+  name: "{{ $clusterName }}-{{ .name }}"
   namespace: {{ $namespace | quote }}
   annotations:
     helm.sh/hook-weight: "25"
 spec:
-  clusterName: {{ $namespace | quote }}
+  clusterName: {{ $clusterName | quote }}
   release:
     image: {{ $poolconfig.imageSet | default $imageset | quote }}
   replicas: {{ .replicas }}
