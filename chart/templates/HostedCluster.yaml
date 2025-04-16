@@ -28,6 +28,10 @@ metadata:
 {{- if hasKey .Values.hypershift "controlPlaneOperatorImage" }}
     hypershift.openshift.io/control-plane-operator-image: {{ .Values.hypershift.controlPlaneOperatorImage | quote }}
 {{- end }}
+    hypershift.openshift.io/certified-operators-catalog-image: registry.redhat.io/redhat/certified-operator-index@sha256:ec153792abd37e7524d076b02b1546160e240964c62b0e51d609acc8e61c66ba
+    hypershift.openshift.io/community-operators-catalog-image: registry.redhat.io/redhat/community-operator-index@sha256:1d682bf744725289ad88e9ffd29ee36027639fba712d4968235eafb40dcd1b77
+    hypershift.openshift.io/redhat-operators-catalog-image: registry.redhat.io/redhat/redhat-operator-index@sha256:ca4718088f5deaf96c37842805f921c3a1b3a45a6057df4313971e9f12ddec39
+    hypershift.openshift.io/redhat-marketplace-catalog-image: registry.redhat.io/redhat/redhat-marketplace-index@sha256:2bd47016e0e36c58b5824c2c7f61ef44f7c53dd51feb0de388b5bc34e1f8b560
 spec:
   release:
     image: {{ .Values.hypershift.clusterImageSet | quote }}
