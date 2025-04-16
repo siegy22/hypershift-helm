@@ -28,6 +28,7 @@ metadata:
 {{- if hasKey .Values.hypershift "controlPlaneOperatorImage" }}
     hypershift.openshift.io/control-plane-operator-image: {{ .Values.hypershift.controlPlaneOperatorImage | quote }}
 {{- end }}
+    hypershift.openshift.io/olm-catalogs-is-registry-overrides: registry.redhat.io/redhat=harbor1.ocp.lab/registry.redhat.io/redhat
 spec:
   release:
     image: {{ .Values.hypershift.clusterImageSet | quote }}
