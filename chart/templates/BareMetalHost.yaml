@@ -19,9 +19,11 @@ metadata:
     bmac.agent-install.openshift.io/role: "worker"
     bmac.agent-install.openshift.io/hostname: {{ .name | quote }}
     helm.sh/hook-weight: "15"
+    inspect.metal3.io: disabled
   labels:
     infraenvs.agent-install.openshift.io: {{ .role | quote }}
 spec:
+  automatedCleaningMode: disabled
   bootMode: {{ .bootMode | default "UEFI" | quote }}
   bmc:
     address: {{ .bmc.address | quote }}
